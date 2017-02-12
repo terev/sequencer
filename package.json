@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "bluebird": "^3.4.7",
+    "canvas": "^1.6.2",
+    "lodash": "^4.17.4",
+    "pegjs": "^0.10.0"
+  }
+}

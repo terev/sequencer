@@ -1,0 +1,7 @@
+Test -> b:thing
+b -> c: thing
+b -> Test: thingironi
+opt
+    hand->ShoeLace:tie
+    ShoeLace->hand:done
+end

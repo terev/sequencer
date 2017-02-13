@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <% include ../partials/head.ejs %>
+</head>
+<body>
+<div class="container">
+    <div class="row" style="height: 100vh">
+        <div class="col-md-4" style="height:100%">
+            <div id="editor" style="height:500px"><%= sequence %></div>
+        </div>
+        <div class="col-md-8" style="height:100%">
+            <canvas id="sequence" style="width:100%; height:100%;"></canvas>
+        </div>
+    </div>
+</div>
+
+<script src="/ace.js" type="text/javascript" charset="utf-8"></script>
+<script src="/axios/dist/axios.min.js" type="text/javascript" charset="utf-8"></script>
+<script type="application/javascript">
+    const editor = ace.edit("editor");
+
+    editor.setValue('<%- sequence.replace(/[\n]/g, '\\n')
+            .replace(/[\r]/g, '\\r') %>');
+
+    editor.getSession().on('change', function (e) {
+        renderDiagram();
+    });
+
+    const canvas = document.getElementById('sequence');
+    const ctx = canvas.getContext("2d");
+    ctx.antialias = 'subpixel';
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientHeight;
+
+    function drawDataURIOnCanvas(strDataURI) {
+        const img = new window.Image();
+        img.setAttribute("src", strDataURI);
+        img.addEventListener("load", function () {
+            ctx.drawImage(img, 0, 0);
+        });
+    }
+
+    function renderDiagram() {
+        console.log({
+            width: canvas.clientWidth,
+            height: canvas.clientHeight});
+        axios.post('/diagram', {
+            width: canvas.clientWidth,
+            height: canvas.clientHeight,
+            interaction: editor.getValue()
+        }).then((res) => {
+            drawDataURIOnCanvas(res.data);
+        }).catch((err) => {
+            if (err.response) {
+                // Response has been received from the server
+                console.log(err.response.data); // => the response payload
+            }
+        });
+    }
+
+    renderDiagram();
+</script>
+</body>
+</html>

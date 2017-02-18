@@ -10,7 +10,7 @@ const sequencer = require('../index');
 app.use(express.static(__dirname + '/../ace'));
 app.use('/axios', express.static(__dirname + '/../node_modules/axios'));
 
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
 // set the view engine to ejs
@@ -22,16 +22,18 @@ app.set('view engine', 'ejs');
 app.get('/', function (req, res) {
     let initial = fs.readFileSync('../test.seq');
 
-    res.render(__dirname + '/../views/index.ejs',
-        {
-            sequence: initial.toString()
-        });
+    sequencer.parse(initial.toString())
+        .then(seq => {
+            res.render(__dirname + '/../views/index.ejs', {
+                sequence: initial.toString(),
+                image: sequencer.draw(seq, 800, 600).toDataURL()
+            });
+        })
 });
 
-app.post('/diagram', function(req, res) {
+app.post('/diagram', function (req, res) {
     sequencer.parse(req.body.interaction)
         .then((seq) => {
-            console.log(seq);
             res.setHeader('Content-Type', 'image/png');
             res.send(sequencer.draw(seq, req.body.width, req.body.height).toDataURL());
         })

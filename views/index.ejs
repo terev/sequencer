@@ -33,6 +33,8 @@
     canvas.width = canvas.clientWidth;
     canvas.height = canvas.clientHeight;
 
+    drawDataURIOnCanvas('<%- image %>');
+
     function drawDataURIOnCanvas(strDataURI) {
         const img = new window.Image();
         img.setAttribute("src", strDataURI);
@@ -58,8 +60,6 @@
             }
         });
     }
-
-    renderDiagram();
 </script>
 </body>
 </html>

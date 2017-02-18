@@ -6,6 +6,23 @@ const Canvas = require('canvas');
 let parser;
 const crypto = require('crypto');
 
+function createParticipant(canvas, ctx, position, participant, participants) {
+    let size = ctx.measureText(participant);
+    let lifeline = position.x + size.width / 2;
+
+    ctx.fillStyle = '#09F';
+    ctx.fillRect(position.x, position.y, size.width, size.emHeightAscent);
+    participants[participant] = {x: position.x};
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillText(participant, position.x, position.y + size.emHeightAscent);
+    ctx.beginPath();
+    ctx.moveTo(lifeline, position.y + size.emHeightAscent);
+    ctx.lineTo(lifeline, canvas.height);
+    ctx.stroke();
+    ctx.closePath();
+    position.x += size.width + 10;
+}
+
 module.exports.draw = function (seq, width, height) {
     const canvas = new Canvas(width, height);
     const ctx = canvas.getContext('2d');
@@ -13,43 +30,15 @@ module.exports.draw = function (seq, width, height) {
     ctx.antialias = 'gray';
 
     let participants = {};
-    let x = 10;
-    let y = 10;
+    let position = {x: 10, y: 10};
     _.each(seq, thing => {
         if (thing.type == 'interaction') {
             if (!_.has(participants, thing.left)) {
-                let size = ctx.measureText(thing.left);
-                let lifeline = x + size.width / 2;
-
-                console.log(size);
-
-                ctx.fillStyle = '#09F';
-                ctx.fillRect(x, y, size.width, size.emHeightAscent);
-                participants[thing.left] = {x: x};
-                ctx.fillStyle = '#FFFFFF';
-                ctx.fillText(thing.left, x, y + size.emHeightAscent);
-                ctx.beginPath();
-                ctx.moveTo(lifeline, y + size.emHeightAscent);
-                ctx.lineTo(lifeline, height);
-                ctx.stroke();
-                ctx.closePath();
-                x += size.width + 10;
+                createParticipant(canvas, ctx, position, thing.left, participants);
             }
-            if (!_.has(participants, thing.right)) {
-                let size = ctx.measureText(thing.right);
-                let lifeline = x + size.width / 2;
 
-                ctx.fillStyle = '#09F';
-                ctx.fillRect(x, y, size.width, size.emHeightAscent);
-                participants[thing.right] = {x: x};
-                ctx.fillStyle = '#FFFFFF';
-                ctx.fillText(thing.right, x, y + size.emHeightAscent);
-                ctx.beginPath();
-                ctx.moveTo(lifeline, y + size.emHeightAscent);
-                ctx.lineTo(lifeline, height);
-                ctx.stroke();
-                ctx.closePath();
-                x += size.width + 10;
+            if (!_.has(participants, thing.right)) {
+                createParticipant(canvas, ctx, position, thing.right, participants);
             }
         }
     });
